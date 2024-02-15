@@ -1,0 +1,65 @@
+@startuml
+
+'left to right direction
+top to bottom direction
+
+title Stand Diagram
+
+class Vehicle {
+vehicleID [pk]
+vehicleName
+vehicleBrand
+vehicleModel
+vehicleLicensePlate
+vehicleNumberSeats
+vehicleNumberDoors
+vehicleTraction
+vehicleFuel
+vehicleColor
+vehicleStatus
+vehicleType
+brandId[fk]
+modelId[fk]
+standID[fk]
+}
+
+class Client {
+clientID[pk]
+clientName
+clientAddress
+clientPhoneNumber
+clientNif
+clientEmailAddress
+standID[fk]
+}
+
+class Stand {
+standID[pk]
+standName
+standAddress
+standPhoneNumber
+standNif
+standEmailAddress
+}
+
+class Brand {
+brandId [pk]
+brandName
+}
+
+
+class Model {
+modelId [pk]
+modelName
+}
+
+
+
+Stand "1 " --down "       *"Vehicle : has >
+Client "1" --down "         *"Vehicle : provides >
+Stand "1" --down "*"Client : has >
+Brand "1    " --down "*"Vehicle : has >
+Model "1    " --down "*"Vehicle : has >
+Brand "1" --down "       *"Model : has >
+
+@enduml

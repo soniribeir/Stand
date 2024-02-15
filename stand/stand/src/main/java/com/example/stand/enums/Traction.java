@@ -1,0 +1,9 @@
+package com.example.stand.enums;
+
+public enum Traction {
+    TWO_WHEEL_DRIVE,
+    FOUR_WHEEL_DRIVE,
+    FRONT_WHEEL_DRIVE_REAL_WHEEL_ASSISTANCE,
+    REAL_WHEEL_DRIVE_FRONT_WHEEL_ASSISTANCE,
+    ELECTRIC
+}
