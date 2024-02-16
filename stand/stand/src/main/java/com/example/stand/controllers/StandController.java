@@ -36,7 +36,7 @@ public class StandController {
         if (vehicle == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        VehicleDTO vehicleDTO = new VehicleDTO(vehicle.getVehicleName(), vehicle.getVehicleLicensePlate(), vehicle.getVehicleNumberSeats(), vehicle.getVehicleNumberDoors(), vehicle.getVehicleTraction(), vehicle.getVehicleFuel(), vehicle.getVehicleColor(), vehicle.getVehicleType(), vehicle.getVehicleStatus(), vehicle.getClient(), vehicle.getModel());
+        VehicleDTO vehicleDTO = new VehicleDTO(vehicle.getVehicleID(),vehicle.getVehicleName(), vehicle.getVehicleLicensePlate(), vehicle.getVehicleNumberSeats(), vehicle.getVehicleNumberDoors(), vehicle.getVehicleTraction(), vehicle.getVehicleFuel(), vehicle.getVehicleColor(), vehicle.getVehicleType(), vehicle.getVehicleStatus(), vehicle.getClient(), vehicle.getModel());
         vehicleDTO.add(linkTo(methodOn(StandController.class).getVehicles()).withSelfRel());
         return new ResponseEntity<>(vehicleDTO,HttpStatus.OK);
     }
@@ -49,7 +49,7 @@ public class StandController {
         List<VehicleDTO> listVehicleDTO = new ArrayList<>();
 
         for(Vehicle v: listVehicles){
-            VehicleDTO vDTO = new VehicleDTO(v.getVehicleName(), v.getVehicleLicensePlate(), v.getVehicleNumberSeats(), v.getVehicleNumberDoors(), v.getVehicleTraction(), v.getVehicleFuel(), v.getVehicleColor(),v.getVehicleType(), v.getVehicleStatus(), v.getClient(), v.getModel());
+            VehicleDTO vDTO = new VehicleDTO(v.getVehicleID(),v.getVehicleName(), v.getVehicleLicensePlate(), v.getVehicleNumberSeats(), v.getVehicleNumberDoors(), v.getVehicleTraction(), v.getVehicleFuel(), v.getVehicleColor(),v.getVehicleType(), v.getVehicleStatus(), v.getClient(), v.getModel());
             vDTO.add(linkTo(methodOn(StandController.class).getVehicle(v.getVehicleID())).withSelfRel());
             listVehicleDTO.add(vDTO);
         }
@@ -60,16 +60,16 @@ public class StandController {
 
     @PostMapping(value= "/vehicle", consumes= "application/json", produces= "application/json")
     public HttpEntity<VehicleDTO> addVehicle(@RequestBody VehicleDTO vehicleDTO) {
-        Vehicle vehicle = new Vehicle(vehicleDTO.getVehicleNameDTO(), vehicleDTO.getVehicleLicensePlateDTO(), vehicleDTO.getVehicleNumberSeatsDTO(), vehicleDTO.getVehicleNumberDoorsDTO(), vehicleDTO.getVehicleTractionDTO(), vehicleDTO.getVehicleFuelDTO(), vehicleDTO.getVehicleColorDTO(), vehicleDTO.getVehicleTypeDTO(), vehicleDTO.getVehicleStatusDTO(), vehicleDTO.getClient(), vehicleDTO.getModel());
+        Vehicle vehicle = new Vehicle(vehicleDTO.getVehicleIdDTO(), vehicleDTO.getVehicleNameDTO(), vehicleDTO.getVehicleLicensePlateDTO(), vehicleDTO.getVehicleNumberSeatsDTO(), vehicleDTO.getVehicleNumberDoorsDTO(), vehicleDTO.getVehicleTractionDTO(), vehicleDTO.getVehicleFuelDTO(), vehicleDTO.getVehicleColorDTO(), vehicleDTO.getVehicleTypeDTO(), vehicleDTO.getVehicleStatusDTO(), vehicleDTO.getClient(), vehicleDTO.getModel());
 
         Vehicle vehicle1 = vehicleRepository.saveAndFlush(vehicle);
-        VehicleDTO resp = new VehicleDTO(vehicle1.getVehicleName(), vehicle1.getVehicleLicensePlate(), vehicle1.getVehicleNumberSeats(), vehicle1.getVehicleNumberDoors(), vehicle1.getVehicleTraction(), vehicle1.getVehicleFuel(), vehicle1.getVehicleColor(), vehicle1.getVehicleType(), vehicle1.getVehicleStatus(), vehicle1.getClient(), vehicle1.getModel());
+        VehicleDTO resp = new VehicleDTO(vehicle1.getVehicleID(),vehicle1.getVehicleName(), vehicle1.getVehicleLicensePlate(), vehicle1.getVehicleNumberSeats(), vehicle1.getVehicleNumberDoors(), vehicle1.getVehicleTraction(), vehicle1.getVehicleFuel(), vehicle1.getVehicleColor(), vehicle1.getVehicleType(), vehicle1.getVehicleStatus(), vehicle1.getClient(), vehicle1.getModel());
         resp.add(linkTo(methodOn(StandController.class).getVehicle(vehicle.getVehicleID())).withSelfRel());
         resp.add(linkTo(methodOn(StandController.class).getVehicles()).withRel("ver_todos_veiculos"));
         resp.add(linkTo(methodOn(StandController.class).updateVehicle(vehicle.getVehicleID(), vehicleDTO)).withRel("update"));
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
-    @PutMapping(value= "/vehicle/{id}", consumes = "application/json")
+    @PutMapping(value= "/vehicle/update/{id}", consumes = "application/json")
     public VehicleDTO updateVehicle(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO) {
 
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(id);
@@ -91,10 +91,20 @@ public class StandController {
 
             Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
 
-            return new VehicleDTO(updatedVehicle.getVehicleName(), updatedVehicle.getVehicleLicensePlate(), updatedVehicle.getVehicleNumberSeats(), updatedVehicle.getVehicleNumberDoors(), updatedVehicle.getVehicleTraction(), updatedVehicle.getVehicleFuel(), updatedVehicle.getVehicleColor(), updatedVehicle.getVehicleType(), updatedVehicle.getVehicleStatus(), updatedVehicle.getClient(), updatedVehicle.getModel());
+            return new VehicleDTO(updatedVehicle.getVehicleID(),updatedVehicle.getVehicleName(), updatedVehicle.getVehicleLicensePlate(), updatedVehicle.getVehicleNumberSeats(), updatedVehicle.getVehicleNumberDoors(), updatedVehicle.getVehicleTraction(), updatedVehicle.getVehicleFuel(), updatedVehicle.getVehicleColor(), updatedVehicle.getVehicleType(), updatedVehicle.getVehicleStatus(), updatedVehicle.getClient(), updatedVehicle.getModel());
         } else {
             return null;
         }
+    }
+
+    @DeleteMapping(value="/vehicle/delete/{id}")
+    public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable("id") long id){
+        Vehicle vehicle = vehicleRepository.findById(id).get();
+        if(vehicle!=null){
+            vehicleRepository.deleteById(id);
+            return new ResponseEntity<>(new VehicleDTO(vehicle.getVehicleID(), vehicle.getVehicleName(), vehicle.getVehicleLicensePlate(), vehicle.getVehicleNumberSeats(), vehicle.getVehicleNumberDoors(), vehicle.getVehicleTraction(), vehicle.getVehicleFuel(), vehicle.getVehicleColor(), vehicle.getVehicleType(), vehicle.getVehicleStatus(), vehicle.getClient(), vehicle.getModel()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
 
     ///////////////////////////////////////////////7
@@ -104,7 +114,7 @@ public class StandController {
         if (client == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        ClientDTO clientDTO = new ClientDTO(client.getClientName(), client.getClientAddress(), client.getClientPhoneNumber(), client.getClientNif(), client.getClientEmailAddress(), client.getStand());
+        ClientDTO clientDTO = new ClientDTO(client.getClientID(),client.getClientName(), client.getClientAddress(), client.getClientPhoneNumber(), client.getClientNif(), client.getClientEmailAddress(), client.getStand());
         clientDTO.add(linkTo(methodOn(StandController.class).getClients()).withSelfRel());
         return new ResponseEntity<>(clientDTO,HttpStatus.OK);
     }
@@ -117,7 +127,7 @@ public class StandController {
         List<ClientDTO> listClientsDTO = new ArrayList<>();
 
         for(Client c: listClients){
-            ClientDTO cDTO = new ClientDTO(c.getClientName(), c.getClientAddress(), c.getClientPhoneNumber(), c.getClientNif(), c.getClientEmailAddress(), c.getStand());
+            ClientDTO cDTO = new ClientDTO(c.getClientID(),c.getClientName(), c.getClientAddress(), c.getClientPhoneNumber(), c.getClientNif(), c.getClientEmailAddress(), c.getStand());
             cDTO.add(linkTo(methodOn(StandController.class).getClient(c.getClientID())).withSelfRel());
             listClientsDTO.add(cDTO);
         }
@@ -129,17 +139,17 @@ public class StandController {
 
     @PostMapping(value= "/client", consumes= "application/json", produces= "application/json")
     public HttpEntity<ClientDTO> addClient(@RequestBody ClientDTO clientDTO) {
-        Client client = new Client(clientDTO.getClientNameDTO(), clientDTO.getClientAddressDTO(), clientDTO.getClientPhoneNumberDTO(), clientDTO.getClientNifDTO(), clientDTO.getClientEmailAddressDTO(), clientDTO.getStand());
+        Client client = new Client(clientDTO.getClientIDDTO(),clientDTO.getClientNameDTO(), clientDTO.getClientAddressDTO(), clientDTO.getClientPhoneNumberDTO(), clientDTO.getClientNifDTO(), clientDTO.getClientEmailAddressDTO(), clientDTO.getStandDTO());
 
         Client client1 = clientRepository.saveAndFlush(client);
-        ClientDTO resp = new ClientDTO(client1.getClientName(), client1.getClientAddress(), client1.getClientPhoneNumber(), client1.getClientNif(), client1.getClientEmailAddress(), client1.getStand());
+        ClientDTO resp = new ClientDTO(client1.getClientID(),client1.getClientName(), client1.getClientAddress(), client1.getClientPhoneNumber(), client1.getClientNif(), client1.getClientEmailAddress(), client1.getStand());
         resp.add(linkTo(methodOn(StandController.class).getClient(client.getClientID())).withSelfRel());
         resp.add(linkTo(methodOn(StandController.class).getClients()).withRel("ver_todos_clientes"));
         resp.add(linkTo(methodOn(StandController.class).updateClient(client.getClientID(), clientDTO)).withRel("update"));
         return new ResponseEntity<>(resp, HttpStatus.OK);
     }
 
-    @PutMapping(value= "/client/{id}", consumes = "application/json")
+    @PutMapping(value= "/client/update/{id}", consumes = "application/json")
     public ClientDTO updateClient(@PathVariable("id") long id, @RequestBody ClientDTO clientDTO) {
 
         Optional<Client> optionalClient = clientRepository.findById(id);
@@ -152,18 +162,27 @@ public class StandController {
             existingClient.setClientPhoneNumber(clientDTO.getClientPhoneNumberDTO());
             existingClient.setClientNif(clientDTO.getClientNifDTO());
             existingClient.setClientEmailAddress(clientDTO.getClientEmailAddressDTO());
-            existingClient.setStand(clientDTO.getStand());
+            existingClient.setStand(clientDTO.getStandDTO());
 
             Client updatedClient = clientRepository.save(existingClient);
 
-            return new ClientDTO(updatedClient.getClientName(), updatedClient.getClientAddress(), updatedClient.getClientPhoneNumber(), updatedClient.getClientNif(), updatedClient.getClientEmailAddress(), updatedClient.getStand());
+            return new ClientDTO(updatedClient.getClientID(),updatedClient.getClientName(), updatedClient.getClientAddress(), updatedClient.getClientPhoneNumber(), updatedClient.getClientNif(), updatedClient.getClientEmailAddress(), updatedClient.getStand());
         } else {
             return null;
         }
     }
 
+    @DeleteMapping("/client/delete/{id}")
+    public ResponseEntity<ClientDTO> deleteClient(@PathVariable("id") long id){
+        Client client = clientRepository.findById(id).get();
+        if(client!=null){
+            return  new ResponseEntity<>(new ClientDTO(client.getClientID(), client.getClientName(), client.getClientAddress(), client.getClientPhoneNumber(), client.getClientNif(), client.getClientEmailAddress(), client.getStand()), HttpStatus.OK);
+        }
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    }
+
     ////////////////////////////
-    @PutMapping(value= "/vehicle/status/{id}", consumes = "application/json")
+    @PutMapping(value= "/vehicle/update-status/{id}", consumes = "application/json")
     public VehicleDTO updateVehicleStatus(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO) {
 
         Optional<Vehicle> optionalVehicle = vehicleRepository.findById(id);
@@ -175,7 +194,7 @@ public class StandController {
 
             Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
 
-            return new VehicleDTO(updatedVehicle.getVehicleName(), updatedVehicle.getVehicleLicensePlate(), updatedVehicle.getVehicleNumberSeats(), updatedVehicle.getVehicleNumberDoors(), updatedVehicle.getVehicleTraction(), updatedVehicle.getVehicleFuel(), updatedVehicle.getVehicleColor(), updatedVehicle.getVehicleType(), updatedVehicle.getVehicleStatus(), updatedVehicle.getClient(), updatedVehicle.getModel());
+            return new VehicleDTO(updatedVehicle.getVehicleID(),updatedVehicle.getVehicleName(), updatedVehicle.getVehicleLicensePlate(), updatedVehicle.getVehicleNumberSeats(), updatedVehicle.getVehicleNumberDoors(), updatedVehicle.getVehicleTraction(), updatedVehicle.getVehicleFuel(), updatedVehicle.getVehicleColor(), updatedVehicle.getVehicleType(), updatedVehicle.getVehicleStatus(), updatedVehicle.getClient(), updatedVehicle.getModel());
         } else {
             return null;
         }

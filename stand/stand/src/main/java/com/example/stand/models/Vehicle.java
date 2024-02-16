@@ -29,21 +29,8 @@ public class Vehicle {
     @ManyToOne
     Model model;
 
-    public Vehicle(long vehicleID, String vehicleName, Model vehicleModel, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
+    public Vehicle(long vehicleID, String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
         this.vehicleID = vehicleID;
-        this.vehicleName = vehicleName;
-        this.vehicleLicensePlate = vehicleLicensePlate;
-        this.vehicleNumberSeats = vehicleNumberSeats;
-        this.vehicleNumberDoors = vehicleNumberDoors;
-        this.vehicleTraction = vehicleTraction;
-        this.vehicleFuel = vehicleFuel;
-        this.vehicleColor = vehicleColor;
-        this.vehicleType = vehicleType;
-        this.vehicleStatus = vehicleStatus;
-        this.client = client;
-        this.model = model;
-    }
-    public Vehicle(String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
         this.vehicleName = vehicleName;
         this.vehicleLicensePlate = vehicleLicensePlate;
         this.vehicleNumberSeats = vehicleNumberSeats;

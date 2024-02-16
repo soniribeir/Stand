@@ -1,18 +1,24 @@
 package com.example.stand.dto;
 
 public class StandDTO {
+    long standIdDTO;
     String standNameDTO;
     String standAddressDTO;
     String standPhoneNumberDTO;
     Integer standNifDTO;
     String standEmailAddressDTO;
 
-    public StandDTO(String standNameDTO, String standAddressDTO, String standPhoneNumberDTO, Integer standNifDTO, String standEmailAddressDTO) {
+    public StandDTO(long standIdDTO, String standNameDTO, String standAddressDTO, String standPhoneNumberDTO, Integer standNifDTO, String standEmailAddressDTO) {
+        this.standIdDTO = standIdDTO;
         this.standNameDTO = standNameDTO;
         this.standAddressDTO = standAddressDTO;
         this.standPhoneNumberDTO = standPhoneNumberDTO;
         this.standNifDTO = standNifDTO;
         this.standEmailAddressDTO = standEmailAddressDTO;
+    }
+
+    public long getStandIdDTO() {
+        return standIdDTO;
     }
 
     public String getStandNameDTO() {

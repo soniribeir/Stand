@@ -5,20 +5,26 @@ import org.springframework.hateoas.RepresentationModel;
 
 public class ClientDTO extends RepresentationModel<ClientDTO> {
 
+    long clientIDDTO;
     String clientNameDTO;
     String clientAddressDTO;
     String clientPhoneNumberDTO;
     Integer clientNifDTO;
     String clientEmailAddressDTO;
-    Stand stand;
+    Stand standDTO;
 
-    public ClientDTO(String clientNameDTO, String clientAddressDTO, String clientPhoneNumberDTO, Integer clientNifDTO, String clientEmailAddressDTO, Stand stand) {
+    public ClientDTO(long clientIDDTO, String clientNameDTO, String clientAddressDTO, String clientPhoneNumberDTO, Integer clientNifDTO, String clientEmailAddressDTO, Stand standDTO) {
+        this.clientIDDTO = clientIDDTO;
         this.clientNameDTO = clientNameDTO;
         this.clientAddressDTO = clientAddressDTO;
         this.clientPhoneNumberDTO = clientPhoneNumberDTO;
         this.clientNifDTO = clientNifDTO;
         this.clientEmailAddressDTO = clientEmailAddressDTO;
-        this.stand = stand;
+        this.standDTO = standDTO;
+    }
+
+    public long getClientIDDTO() {
+        return clientIDDTO;
     }
 
     public String getClientNameDTO() {
@@ -41,8 +47,8 @@ public class ClientDTO extends RepresentationModel<ClientDTO> {
         return clientEmailAddressDTO;
     }
 
-    public Stand getStand() {
-        return stand;
+    public Stand getStandDTO() {
+        return standDTO;
     }
 
     public void setClientNameDTO(String clientNameDTO) {
@@ -65,7 +71,7 @@ public class ClientDTO extends RepresentationModel<ClientDTO> {
         this.clientEmailAddressDTO = clientEmailAddressDTO;
     }
 
-    public void setStand(Stand stand) {
-        this.stand = stand;
+    public void setStandDTO(Stand standDTO) {
+        this.standDTO = standDTO;
     }
 }

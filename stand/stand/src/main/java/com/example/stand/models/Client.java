@@ -24,14 +24,6 @@ public class Client {
         this.clientEmailAddress = clientEmailAddress;
         this.stand = stand;
     }
-    public Client(String clientName, String clientAddress, String clientPhoneNumber, Integer clientNif, String clientEmailAddress, Stand stand) {
-        this.clientName = clientName;
-        this.clientAddress = clientAddress;
-        this.clientPhoneNumber = clientPhoneNumber;
-        this.clientNif = clientNif;
-        this.clientEmailAddress = clientEmailAddress;
-        this.stand = stand;
-    }
     public Client(){}
 
     public long getClientID() {

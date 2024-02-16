@@ -11,6 +11,8 @@ import jakarta.persistence.Enumerated;
 import org.springframework.hateoas.RepresentationModel;
 
 public class VehicleDTO extends RepresentationModel<VehicleDTO> {
+
+    long vehicleIdDTO;
     String vehicleNameDTO;
     String vehicleLicensePlateDTO;
     Integer vehicleNumberSeatsDTO;
@@ -27,7 +29,8 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
     Client client;
     Model model;
 
-    public VehicleDTO(String vehicleNameDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO, Client clientDTO, Model model) {
+    public VehicleDTO(long vehicleIdDTO, String vehicleNameDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO, Client client, Model model) {
+        this.vehicleIdDTO = vehicleIdDTO;
         this.vehicleNameDTO = vehicleNameDTO;
         this.vehicleLicensePlateDTO = vehicleLicensePlateDTO;
         this.vehicleNumberSeatsDTO = vehicleNumberSeatsDTO;
@@ -41,9 +44,14 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
         this.model = model;
     }
 
+    public long getVehicleIdDTO() {
+        return vehicleIdDTO;
+    }
+
     public String getVehicleNameDTO() {
         return vehicleNameDTO;
     }
+
     public String getVehicleLicensePlateDTO() {
         return vehicleLicensePlateDTO;
     }
