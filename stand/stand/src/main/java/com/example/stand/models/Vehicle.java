@@ -15,20 +15,36 @@ public class Vehicle {
     String vehicleLicensePlate;
     Integer vehicleNumberSeats;
     Integer vehicleNumberDoors;
+    @Enumerated
     Traction vehicleTraction;
+    @Enumerated
     Fuel vehicleFuel;
     String vehicleColor;
+    @Enumerated
     Type vehicleType;
+    @Enumerated
     Status vehicleStatus;
-    @OneToMany
+    @ManyToOne
     Client client;
-    @OneToMany
+    @ManyToOne
     Model model;
 
     public Vehicle(long vehicleID, String vehicleName, Model vehicleModel, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
         this.vehicleID = vehicleID;
         this.vehicleName = vehicleName;
-        this.vehicleModel = vehicleModel;
+        this.vehicleLicensePlate = vehicleLicensePlate;
+        this.vehicleNumberSeats = vehicleNumberSeats;
+        this.vehicleNumberDoors = vehicleNumberDoors;
+        this.vehicleTraction = vehicleTraction;
+        this.vehicleFuel = vehicleFuel;
+        this.vehicleColor = vehicleColor;
+        this.vehicleType = vehicleType;
+        this.vehicleStatus = vehicleStatus;
+        this.client = client;
+        this.model = model;
+    }
+    public Vehicle(String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
+        this.vehicleName = vehicleName;
         this.vehicleLicensePlate = vehicleLicensePlate;
         this.vehicleNumberSeats = vehicleNumberSeats;
         this.vehicleNumberDoors = vehicleNumberDoors;
@@ -48,10 +64,6 @@ public class Vehicle {
 
     public String getVehicleName() {
         return vehicleName;
-    }
-
-    public Model getVehicleModel() {
-        return vehicleModel;
     }
 
     public String getVehicleLicensePlate() {
@@ -96,10 +108,6 @@ public class Vehicle {
 
     public void setVehicleName(String vehicleName) {
         this.vehicleName = vehicleName;
-    }
-
-    public void setVehicleModel(Model vehicleModel) {
-        this.vehicleModel = vehicleModel;
     }
 
     public void setVehicleLicensePlate(String vehicleLicensePlate) {

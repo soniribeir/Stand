@@ -5,25 +5,30 @@ import com.example.stand.enums.Status;
 import com.example.stand.enums.Traction;
 import com.example.stand.enums.Type;
 import com.example.stand.models.Brand;
+import com.example.stand.models.Client;
 import com.example.stand.models.Model;
+import jakarta.persistence.Enumerated;
+import org.springframework.hateoas.RepresentationModel;
 
-public class VehicleDTO {
+public class VehicleDTO extends RepresentationModel<VehicleDTO> {
     String vehicleNameDTO;
-    Brand vehicleBrandDTO;
-    Model vehicleModelDTO;
     String vehicleLicensePlateDTO;
     Integer vehicleNumberSeatsDTO;
     Integer vehicleNumberDoorsDTO;
+    @Enumerated
     Traction vehicleTractionDTO;
+    @Enumerated
     Fuel vehicleFuelDTO;
     String vehicleColorDTO;
+    @Enumerated
     Type vehicleTypeDTO;
+    @Enumerated
     Status vehicleStatusDTO;
+    Client client;
+    Model model;
 
-    public VehicleDTO(String vehicleNameDTO, Brand vehicleBrandDTO, Model vehicleModelDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO) {
+    public VehicleDTO(String vehicleNameDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO, Client clientDTO, Model model) {
         this.vehicleNameDTO = vehicleNameDTO;
-        this.vehicleBrandDTO = vehicleBrandDTO;
-        this.vehicleModelDTO = vehicleModelDTO;
         this.vehicleLicensePlateDTO = vehicleLicensePlateDTO;
         this.vehicleNumberSeatsDTO = vehicleNumberSeatsDTO;
         this.vehicleNumberDoorsDTO = vehicleNumberDoorsDTO;
@@ -32,20 +37,13 @@ public class VehicleDTO {
         this.vehicleColorDTO = vehicleColorDTO;
         this.vehicleTypeDTO = vehicleTypeDTO;
         this.vehicleStatusDTO = vehicleStatusDTO;
+        this.client = client;
+        this.model = model;
     }
 
     public String getVehicleNameDTO() {
         return vehicleNameDTO;
     }
-
-    public Brand getVehicleBrandDTO() {
-        return vehicleBrandDTO;
-    }
-
-    public Model getVehicleModelDTO() {
-        return vehicleModelDTO;
-    }
-
     public String getVehicleLicensePlateDTO() {
         return vehicleLicensePlateDTO;
     }
@@ -78,18 +76,17 @@ public class VehicleDTO {
         return vehicleStatusDTO;
     }
 
+    public Client getClient() {
+        return client;
+    }
+
+    public Model getModel() {
+        return model;
+    }
+
     public void setVehicleNameDTO(String vehicleNameDTO) {
         this.vehicleNameDTO = vehicleNameDTO;
     }
-
-    public void setVehicleBrandDTO(Brand vehicleBrandDTO) {
-        this.vehicleBrandDTO = vehicleBrandDTO;
-    }
-
-    public void setVehicleModelDTO(Model vehicleModelDTO) {
-        this.vehicleModelDTO = vehicleModelDTO;
-    }
-
     public void setVehicleLicensePlateDTO(String vehicleLicensePlateDTO) {
         this.vehicleLicensePlateDTO = vehicleLicensePlateDTO;
     }
@@ -120,5 +117,13 @@ public class VehicleDTO {
 
     public void setVehicleStatusDTO(Status vehicleStatusDTO) {
         this.vehicleStatusDTO = vehicleStatusDTO;
+    }
+
+    public void setClient(Client client) {
+        this.client = client;
+    }
+
+    public void setModel(Model model) {
+        this.model = model;
     }
 }

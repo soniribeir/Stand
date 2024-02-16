@@ -6,6 +6,7 @@ import com.example.stand.models.Vehicle;
 
 import java.util.Collection;
 import java.util.Map;
+import java.util.Optional;
 
 public class MyStorageImpl implements MyStorage {
 
@@ -18,8 +19,8 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public VehicleDTO getVehicle(String name) {
-        return vehicleStorage.get(name);
+    public VehicleDTO getVehicle(long id) {
+        return vehicleStorage.get(id);
     }
 
     @Override
@@ -37,9 +38,15 @@ public class MyStorageImpl implements MyStorage {
         return vehicleStorage.put(vehicle.getVehicleNameDTO(), vehicle);
     }
 
+//    @Override
+//    public VehicleDTO buyVehicle(VehicleDTO vehicle) {
+//
+//        Optional<Vehicle> optionalVehicle = vehicle
+//    }
+
     @Override
-    public ClientDTO getClient(String name) {
-        return clientStorage.get(name);
+    public ClientDTO getClient(long id) {
+        return clientStorage.get(id);
     }
 
     @Override

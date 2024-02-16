@@ -7,7 +7,7 @@ import java.util.Collection;
 
 public interface MyStorage {
 
-    public VehicleDTO getVehicle(String name);
+    public VehicleDTO getVehicle(long id);
 
     public Collection<VehicleDTO> getAllVehicles();
 
@@ -15,7 +15,9 @@ public interface MyStorage {
 
     public VehicleDTO updateVehicle(VehicleDTO vehicle);
 
-    public ClientDTO getClient(String name);
+//    public VehicleDTO buyVehicle(VehicleDTO vehicle);
+
+    public ClientDTO getClient(long id);
 
     public Collection<ClientDTO> getAllClients();
 

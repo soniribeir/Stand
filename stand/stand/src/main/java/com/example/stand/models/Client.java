@@ -12,11 +12,19 @@ public class Client {
     String clientPhoneNumber;
     Integer clientNif;
     String clientEmailAddress;
-    @OneToMany
+    @ManyToOne
     Stand stand;
 
     public Client(long clientID, String clientName, String clientAddress, String clientPhoneNumber, Integer clientNif, String clientEmailAddress, Stand stand) {
         this.clientID = clientID;
+        this.clientName = clientName;
+        this.clientAddress = clientAddress;
+        this.clientPhoneNumber = clientPhoneNumber;
+        this.clientNif = clientNif;
+        this.clientEmailAddress = clientEmailAddress;
+        this.stand = stand;
+    }
+    public Client(String clientName, String clientAddress, String clientPhoneNumber, Integer clientNif, String clientEmailAddress, Stand stand) {
         this.clientName = clientName;
         this.clientAddress = clientAddress;
         this.clientPhoneNumber = clientPhoneNumber;

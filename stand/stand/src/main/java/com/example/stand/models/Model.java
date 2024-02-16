@@ -8,7 +8,7 @@ public class Model {
     @GeneratedValue
     long modelID;
     String modelName;
-    @OneToMany
+    @ManyToOne
     Brand brandName;
 
     public Model(long modelID, String modelName, Brand brandName) {
