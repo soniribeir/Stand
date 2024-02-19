@@ -1,11 +1,13 @@
 package com.example.stand.controllers;
 
+import com.example.stand.dto.BrandDTO;
 import com.example.stand.dto.ClientDTO;
+import com.example.stand.dto.ModelDTO;
 import com.example.stand.dto.VehicleDTO;
+import com.example.stand.models.Brand;
 import com.example.stand.models.Client;
 import com.example.stand.models.Vehicle;
-import com.example.stand.services.ClientRepository;
-import com.example.stand.services.VehicleRepository;
+import com.example.stand.services.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.Link;
@@ -15,188 +17,335 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
+import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilderDslKt.withRel;
 
 @RestController
 public class StandController {
 
     @Autowired
-    VehicleRepository vehicleRepository;
+    private final MyStorageImpl myStorage;
 
-    @Autowired
-    ClientRepository clientRepository;
+    public StandController(MyStorageImpl myStorage) {
+        this.myStorage = myStorage;
+    }
 
     @GetMapping(value= "/vehicle/{id}", produces = "application/json")
     public ResponseEntity<VehicleDTO> getVehicle(@PathVariable("id") long id){
-        Vehicle vehicle = vehicleRepository.findById(id).get();
-        if (vehicle == null){
+
+        VehicleDTO vehicleDTO = myStorage.getVehicle(id);
+
+        if (vehicleDTO == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        VehicleDTO vehicleDTO = new VehicleDTO(vehicle.getVehicleID(),vehicle.getVehicleName(), vehicle.getVehicleLicensePlate(), vehicle.getVehicleNumberSeats(), vehicle.getVehicleNumberDoors(), vehicle.getVehicleTraction(), vehicle.getVehicleFuel(), vehicle.getVehicleColor(), vehicle.getVehicleType(), vehicle.getVehicleStatus(), vehicle.getClient(), vehicle.getModel());
         vehicleDTO.add(linkTo(methodOn(StandController.class).getVehicles()).withSelfRel());
         return new ResponseEntity<>(vehicleDTO,HttpStatus.OK);
     }
 
     @GetMapping(value="/vehicles", produces = "application/json")
-    public CollectionModel<VehicleDTO> getVehicles(){
+    public ResponseEntity<CollectionModel<VehicleDTO>> getVehicles(){
 
-        List<Vehicle> listVehicles = vehicleRepository.findAll();
+        Collection<VehicleDTO> listVehiclesDTO = myStorage.getAllVehicles();
+        if(listVehiclesDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
 
-        List<VehicleDTO> listVehicleDTO = new ArrayList<>();
-
-        for(Vehicle v: listVehicles){
-            VehicleDTO vDTO = new VehicleDTO(v.getVehicleID(),v.getVehicleName(), v.getVehicleLicensePlate(), v.getVehicleNumberSeats(), v.getVehicleNumberDoors(), v.getVehicleTraction(), v.getVehicleFuel(), v.getVehicleColor(),v.getVehicleType(), v.getVehicleStatus(), v.getClient(), v.getModel());
-            vDTO.add(linkTo(methodOn(StandController.class).getVehicle(v.getVehicleID())).withSelfRel());
-            listVehicleDTO.add(vDTO);
+        for(VehicleDTO vehicleDTO : listVehiclesDTO){
+            vehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(vehicleDTO.getVehicleIdDTO())).withSelfRel());
         }
         Link link = linkTo(methodOn(StandController.class).getVehicles()).withSelfRel();
-        CollectionModel<VehicleDTO> resp = CollectionModel.of(listVehicleDTO, link);
-        return resp;
+        CollectionModel<VehicleDTO> response = CollectionModel.of(listVehiclesDTO, link);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping(value= "/vehicle", consumes= "application/json", produces= "application/json")
-    public HttpEntity<VehicleDTO> addVehicle(@RequestBody VehicleDTO vehicleDTO) {
-        Vehicle vehicle = new Vehicle(vehicleDTO.getVehicleIdDTO(), vehicleDTO.getVehicleNameDTO(), vehicleDTO.getVehicleLicensePlateDTO(), vehicleDTO.getVehicleNumberSeatsDTO(), vehicleDTO.getVehicleNumberDoorsDTO(), vehicleDTO.getVehicleTractionDTO(), vehicleDTO.getVehicleFuelDTO(), vehicleDTO.getVehicleColorDTO(), vehicleDTO.getVehicleTypeDTO(), vehicleDTO.getVehicleStatusDTO(), vehicleDTO.getClient(), vehicleDTO.getModel());
+    public ResponseEntity<VehicleDTO> addVehicle(@RequestBody VehicleDTO vehicleDTO) {
 
-        Vehicle vehicle1 = vehicleRepository.saveAndFlush(vehicle);
-        VehicleDTO resp = new VehicleDTO(vehicle1.getVehicleID(),vehicle1.getVehicleName(), vehicle1.getVehicleLicensePlate(), vehicle1.getVehicleNumberSeats(), vehicle1.getVehicleNumberDoors(), vehicle1.getVehicleTraction(), vehicle1.getVehicleFuel(), vehicle1.getVehicleColor(), vehicle1.getVehicleType(), vehicle1.getVehicleStatus(), vehicle1.getClient(), vehicle1.getModel());
-        resp.add(linkTo(methodOn(StandController.class).getVehicle(vehicle.getVehicleID())).withSelfRel());
-        resp.add(linkTo(methodOn(StandController.class).getVehicles()).withRel("ver_todos_veiculos"));
-        resp.add(linkTo(methodOn(StandController.class).updateVehicle(vehicle.getVehicleID(), vehicleDTO)).withRel("update"));
-        return new ResponseEntity<>(resp, HttpStatus.OK);
+        VehicleDTO addedVehicleDTO = myStorage.addVehicle(vehicleDTO);
+
+        addedVehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(addedVehicleDTO.getVehicleIdDTO())).withSelfRel());
+        addedVehicleDTO.add(linkTo(methodOn(StandController.class).getVehicles()).withRel("ver_todos_veiculos"));
+        addedVehicleDTO.add(linkTo(methodOn(StandController.class).updateVehicle(addedVehicleDTO.getVehicleIdDTO(), vehicleDTO)).withRel("update"));
+        return new ResponseEntity<>(addedVehicleDTO, HttpStatus.CREATED);
     }
+
     @PutMapping(value= "/vehicle/update/{id}", consumes = "application/json")
-    public VehicleDTO updateVehicle(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO) {
+    public ResponseEntity<VehicleDTO> updateVehicle(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO) {
 
-        Optional<Vehicle> optionalVehicle = vehicleRepository.findById(id);
+        VehicleDTO updatedVehicleDTO =myStorage.updateVehicle(vehicleDTO);
 
-        if (optionalVehicle.isPresent()) {
-            Vehicle existingVehicle = optionalVehicle.get();
-
-            existingVehicle.setVehicleName(vehicleDTO.getVehicleNameDTO());
-            existingVehicle.setVehicleLicensePlate(vehicleDTO.getVehicleLicensePlateDTO());
-            existingVehicle.setVehicleNumberSeats(vehicleDTO.getVehicleNumberSeatsDTO());
-            existingVehicle.setVehicleNumberDoors(vehicleDTO.getVehicleNumberDoorsDTO());
-            existingVehicle.setVehicleTraction(vehicleDTO.getVehicleTractionDTO());
-            existingVehicle.setVehicleFuel(vehicleDTO.getVehicleFuelDTO());
-            existingVehicle.setVehicleColor(vehicleDTO.getVehicleColorDTO());
-            existingVehicle.setVehicleType(vehicleDTO.getVehicleTypeDTO());
-            existingVehicle.setVehicleStatus(vehicleDTO.getVehicleStatusDTO());
-            existingVehicle.setClient(vehicleDTO.getClient());
-            existingVehicle.setModel(vehicleDTO.getModel());
-
-            Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
-
-            return new VehicleDTO(updatedVehicle.getVehicleID(),updatedVehicle.getVehicleName(), updatedVehicle.getVehicleLicensePlate(), updatedVehicle.getVehicleNumberSeats(), updatedVehicle.getVehicleNumberDoors(), updatedVehicle.getVehicleTraction(), updatedVehicle.getVehicleFuel(), updatedVehicle.getVehicleColor(), updatedVehicle.getVehicleType(), updatedVehicle.getVehicleStatus(), updatedVehicle.getClient(), updatedVehicle.getModel());
-        } else {
-            return null;
+        if (updatedVehicleDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        updatedVehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(id)).withSelfRel());
+        updatedVehicleDTO.add(linkTo(methodOn(StandController.class).getVehicles()).withRel("ver_todos_veiculos"));
+
+        return new ResponseEntity<>(updatedVehicleDTO, HttpStatus.OK);
     }
 
     @DeleteMapping(value="/vehicle/delete/{id}")
     public ResponseEntity<VehicleDTO> deleteVehicle(@PathVariable("id") long id){
-        Vehicle vehicle = vehicleRepository.findById(id).get();
-        if(vehicle!=null){
-            vehicleRepository.deleteById(id);
-            return new ResponseEntity<>(new VehicleDTO(vehicle.getVehicleID(), vehicle.getVehicleName(), vehicle.getVehicleLicensePlate(), vehicle.getVehicleNumberSeats(), vehicle.getVehicleNumberDoors(), vehicle.getVehicleTraction(), vehicle.getVehicleFuel(), vehicle.getVehicleColor(), vehicle.getVehicleType(), vehicle.getVehicleStatus(), vehicle.getClient(), vehicle.getModel()), HttpStatus.OK);
-        }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-    }
 
-    ///////////////////////////////////////////////7
-    @GetMapping(value= "/client/{id}", produces = "application/json")
-    public ResponseEntity<ClientDTO> getClient(@PathVariable("id") long id){
-        Client client = clientRepository.findById(id).get();
-        if (client == null){
+        VehicleDTO deletedVehicleDTO = myStorage.deleteVehicle(id);
+
+        if(deletedVehicleDTO == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        ClientDTO clientDTO = new ClientDTO(client.getClientID(),client.getClientName(), client.getClientAddress(), client.getClientPhoneNumber(), client.getClientNif(), client.getClientEmailAddress(), client.getStand());
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+    
+
+    @PutMapping(value="/vehicle/update/status-sold/{id}", consumes = "production/json")
+    public ResponseEntity<VehicleDTO> updateStatusToSold(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO){
+
+        VehicleDTO updatedStatus = myStorage.updateAsSold(vehicleDTO);
+
+        if(updatedStatus == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        updatedStatus.add(linkTo(methodOn(StandController.class).getVehicle(id)).withSelfRel());
+        updatedStatus.add(linkTo(methodOn(StandController.class).getVehicles()).withRel("ver_todos_os_veículos"));
+
+        return new ResponseEntity<>(updatedStatus, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/vehicle/status-stock", produces = "application/json")
+    public ResponseEntity<CollectionModel<VehicleDTO>> getVehiclesStock(){
+
+        Collection<VehicleDTO> listVehiclesStockDTO = myStorage.getVehiclesStock();
+        if(listVehiclesStockDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        for(VehicleDTO vehicleDTO : listVehiclesStockDTO ){
+            vehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(vehicleDTO.getVehicleIdDTO())).withSelfRel());
+        }
+        Link link = linkTo(methodOn(StandController.class).getVehicles()).withSelfRel();
+        CollectionModel<VehicleDTO> response = CollectionModel.of(listVehiclesStockDTO, link);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/vehicle/status-sold", produces = "application/json")
+    public ResponseEntity<CollectionModel<VehicleDTO>> getVehiclesSold(){
+
+        Collection<VehicleDTO> listVehiclesSoldDTO = myStorage.getVehiclesSold();
+        if(listVehiclesSoldDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        for(VehicleDTO vehicleDTO : listVehiclesSoldDTO ){
+            vehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(vehicleDTO.getVehicleIdDTO())).withSelfRel());
+        }
+        Link link = linkTo(methodOn(StandController.class).getVehicles()).withSelfRel();
+        CollectionModel<VehicleDTO> response = CollectionModel.of(listVehiclesSoldDTO, link);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    ///////////////////////////////////////////////CLIENT////////
+
+    @GetMapping(value= "/client/{id}", produces = "application/json")
+    public ResponseEntity<ClientDTO> getClient(@PathVariable("id") long id){
+
+        ClientDTO clientDTO = myStorage.getClient(id);
+
+        if (clientDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
         clientDTO.add(linkTo(methodOn(StandController.class).getClients()).withSelfRel());
         return new ResponseEntity<>(clientDTO,HttpStatus.OK);
     }
 
     @GetMapping(value="/clients", produces = "application/json")
-    public CollectionModel<ClientDTO> getClients(){
+    public ResponseEntity<CollectionModel<ClientDTO>> getClients(){
 
-        List<Client> listClients = clientRepository.findAll();
+        Collection<ClientDTO> listClientsDTO = myStorage.getAllClients();
+        if(listClientsDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
 
-        List<ClientDTO> listClientsDTO = new ArrayList<>();
-
-        for(Client c: listClients){
-            ClientDTO cDTO = new ClientDTO(c.getClientID(),c.getClientName(), c.getClientAddress(), c.getClientPhoneNumber(), c.getClientNif(), c.getClientEmailAddress(), c.getStand());
-            cDTO.add(linkTo(methodOn(StandController.class).getClient(c.getClientID())).withSelfRel());
-            listClientsDTO.add(cDTO);
+        for(ClientDTO clientDTO : listClientsDTO){
+            clientDTO.add(linkTo(methodOn(StandController.class).getClient(clientDTO.getClientIDDTO())).withSelfRel());
         }
         Link link = linkTo(methodOn(StandController.class).getClients()).withSelfRel();
-        CollectionModel<ClientDTO> resp = CollectionModel.of(listClientsDTO, link);
-        return resp;
+        CollectionModel<ClientDTO> response = CollectionModel.of(listClientsDTO, link);
+        return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
 
     @PostMapping(value= "/client", consumes= "application/json", produces= "application/json")
-    public HttpEntity<ClientDTO> addClient(@RequestBody ClientDTO clientDTO) {
-        Client client = new Client(clientDTO.getClientIDDTO(),clientDTO.getClientNameDTO(), clientDTO.getClientAddressDTO(), clientDTO.getClientPhoneNumberDTO(), clientDTO.getClientNifDTO(), clientDTO.getClientEmailAddressDTO(), clientDTO.getStandDTO());
+    public ResponseEntity<ClientDTO> addClient(@RequestBody ClientDTO clientDTO) {
 
-        Client client1 = clientRepository.saveAndFlush(client);
-        ClientDTO resp = new ClientDTO(client1.getClientID(),client1.getClientName(), client1.getClientAddress(), client1.getClientPhoneNumber(), client1.getClientNif(), client1.getClientEmailAddress(), client1.getStand());
-        resp.add(linkTo(methodOn(StandController.class).getClient(client.getClientID())).withSelfRel());
-        resp.add(linkTo(methodOn(StandController.class).getClients()).withRel("ver_todos_clientes"));
-        resp.add(linkTo(methodOn(StandController.class).updateClient(client.getClientID(), clientDTO)).withRel("update"));
-        return new ResponseEntity<>(resp, HttpStatus.OK);
+        ClientDTO addedClientDTO = myStorage.addClient(clientDTO);
+
+        addedClientDTO.add(linkTo(methodOn(StandController.class).getClient(addedClientDTO.getClientIDDTO())).withSelfRel());
+        addedClientDTO.add(linkTo(methodOn(StandController.class).getClients()).withRel("ver_todos_clientes"));
+        addedClientDTO.add(linkTo(methodOn(StandController.class).updateClient(addedClientDTO.getClientIDDTO(), clientDTO)).withRel("update"));
+        return new ResponseEntity<>(addedClientDTO, HttpStatus.CREATED);
     }
 
     @PutMapping(value= "/client/update/{id}", consumes = "application/json")
-    public ClientDTO updateClient(@PathVariable("id") long id, @RequestBody ClientDTO clientDTO) {
+    public ResponseEntity<ClientDTO> updateClient(@PathVariable("id") long id, @RequestBody ClientDTO clientDTO) {
 
-        Optional<Client> optionalClient = clientRepository.findById(id);
+        ClientDTO updatedClientDTO =myStorage.updateClient(clientDTO);
 
-        if (optionalClient.isPresent()) {
-            Client existingClient = optionalClient.get();
-
-            existingClient.setClientName(clientDTO.getClientNameDTO());
-            existingClient.setClientAddress(clientDTO.getClientAddressDTO());
-            existingClient.setClientPhoneNumber(clientDTO.getClientPhoneNumberDTO());
-            existingClient.setClientNif(clientDTO.getClientNifDTO());
-            existingClient.setClientEmailAddress(clientDTO.getClientEmailAddressDTO());
-            existingClient.setStand(clientDTO.getStandDTO());
-
-            Client updatedClient = clientRepository.save(existingClient);
-
-            return new ClientDTO(updatedClient.getClientID(),updatedClient.getClientName(), updatedClient.getClientAddress(), updatedClient.getClientPhoneNumber(), updatedClient.getClientNif(), updatedClient.getClientEmailAddress(), updatedClient.getStand());
-        } else {
-            return null;
+        if (updatedClientDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        updatedClientDTO.add(linkTo(methodOn(StandController.class).getClient(id)).withSelfRel());
+        updatedClientDTO.add(linkTo(methodOn(StandController.class).getClients()).withRel("ver_todos_clients"));
+
+        return new ResponseEntity<>(updatedClientDTO, HttpStatus.OK);
     }
 
-    @DeleteMapping("/client/delete/{id}")
+    @DeleteMapping(value="/client/delete/{id}")
     public ResponseEntity<ClientDTO> deleteClient(@PathVariable("id") long id){
-        Client client = clientRepository.findById(id).get();
-        if(client!=null){
-            return  new ResponseEntity<>(new ClientDTO(client.getClientID(), client.getClientName(), client.getClientAddress(), client.getClientPhoneNumber(), client.getClientNif(), client.getClientEmailAddress(), client.getStand()), HttpStatus.OK);
+
+        ClientDTO deletedClientDTO = myStorage.deleteClient(id);
+
+        if(deletedClientDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
-        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        return new ResponseEntity<>(HttpStatus.OK);
     }
 
-    ////////////////////////////
-    @PutMapping(value= "/vehicle/update-status/{id}", consumes = "application/json")
-    public VehicleDTO updateVehicleStatus(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO) {
 
-        Optional<Vehicle> optionalVehicle = vehicleRepository.findById(id);
 
-        if (optionalVehicle.isPresent()) {
-            Vehicle existingVehicle = optionalVehicle.get();
+    //////////////////////BRAND/////
 
-            existingVehicle.setVehicleStatus(vehicleDTO.getVehicleStatusDTO());
+    @GetMapping(value= "/brand/{id}", produces = "application/json")
+    public ResponseEntity<BrandDTO> getBrand(@PathVariable("id") long id){
 
-            Vehicle updatedVehicle = vehicleRepository.save(existingVehicle);
+        BrandDTO brandDTO = myStorage.getBrand(id);
 
-            return new VehicleDTO(updatedVehicle.getVehicleID(),updatedVehicle.getVehicleName(), updatedVehicle.getVehicleLicensePlate(), updatedVehicle.getVehicleNumberSeats(), updatedVehicle.getVehicleNumberDoors(), updatedVehicle.getVehicleTraction(), updatedVehicle.getVehicleFuel(), updatedVehicle.getVehicleColor(), updatedVehicle.getVehicleType(), updatedVehicle.getVehicleStatus(), updatedVehicle.getClient(), updatedVehicle.getModel());
-        } else {
-            return null;
+        if (brandDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
+        brandDTO.add(linkTo(methodOn(StandController.class).getBrands()).withSelfRel());
+        return new ResponseEntity<>(brandDTO,HttpStatus.OK);
     }
+
+    @GetMapping(value="/brands", produces = "application/json")
+    public ResponseEntity<CollectionModel<BrandDTO>> getBrands(){
+
+        Collection<BrandDTO> listBrandsDTO = myStorage.getAllBrands();
+        if(listBrandsDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        for(BrandDTO brandDTO : listBrandsDTO){
+            brandDTO.add(linkTo(methodOn(StandController.class).getBrand(brandDTO.getBrandIDDTO())).withSelfRel());
+        }
+        Link link = linkTo(methodOn(StandController.class).getBrands()).withSelfRel();
+        CollectionModel<BrandDTO> response = CollectionModel.of(listBrandsDTO, link);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping(value= "/brand", consumes= "application/json", produces= "application/json")
+    public ResponseEntity<BrandDTO> addBrand(@RequestBody BrandDTO brandDTO) {
+
+        BrandDTO addedBrandDTO = myStorage.addBrand(brandDTO);
+
+        addedBrandDTO.add(linkTo(methodOn(StandController.class).getBrand(addedBrandDTO.getBrandIDDTO())).withSelfRel());
+        addedBrandDTO.add(linkTo(methodOn(StandController.class).getBrands()).withRel("ver_todas_brands"));
+        addedBrandDTO.add(linkTo(methodOn(StandController.class).updateBrand(addedBrandDTO.getBrandIDDTO(), brandDTO)).withRel("update"));
+        return new ResponseEntity<>(addedBrandDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value= "/brand/update/{id}", consumes = "application/json")
+    public ResponseEntity<BrandDTO> updateBrand(@PathVariable("id") long id, @RequestBody BrandDTO brandDTO) {
+
+        BrandDTO updatedBrandDTO =myStorage.updateBrand(brandDTO);
+
+        if ( updatedBrandDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        updatedBrandDTO.add(linkTo(methodOn(StandController.class).getBrand(id)).withSelfRel());
+        updatedBrandDTO.add(linkTo(methodOn(StandController.class).getBrands()).withRel("ver_todas_brands"));
+
+        return new ResponseEntity<>( updatedBrandDTO, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value="/brand/delete/{id}")
+    public ResponseEntity<BrandDTO> deleteBrand(@PathVariable("id") long id){
+
+        BrandDTO deletedBrandDTO = myStorage.deleteBrand(id);
+
+        if(deletedBrandDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
+    ////////////////MODEL////////////////
+
+    @GetMapping(value= "/model/{id}", produces = "application/json")
+    public ResponseEntity<ModelDTO> getModel(@PathVariable("id") long id){
+
+        ModelDTO modelDTO = myStorage.getModel(id);
+
+        if (modelDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        modelDTO.add(linkTo(methodOn(StandController.class).getModels()).withSelfRel());
+        return new ResponseEntity<>(modelDTO,HttpStatus.OK);
+    }
+
+    @GetMapping(value="/models", produces = "application/json")
+    public ResponseEntity<CollectionModel<ModelDTO>> getModels(){
+
+        Collection<ModelDTO> listModelsDTO = myStorage.getAllModels();
+        if(listModelsDTO.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+
+        for(ModelDTO modelDTO : listModelsDTO){
+            modelDTO.add(linkTo(methodOn(StandController.class).getModel(modelDTO.getModelIDDTO())).withSelfRel());
+        }
+        Link link = linkTo(methodOn(StandController.class).getModels()).withSelfRel();
+        CollectionModel<ModelDTO> response = CollectionModel.of(listModelsDTO, link);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping(value= "/model", consumes= "application/json", produces= "application/json")
+    public ResponseEntity<ModelDTO> addModel(@RequestBody ModelDTO modelDTO) {
+
+        ModelDTO addedModelDTO = myStorage.addModel(modelDTO);
+
+        addedModelDTO.add(linkTo(methodOn(StandController.class).getModel(addedModelDTO.getModelIDDTO())).withSelfRel());
+        addedModelDTO.add(linkTo(methodOn(StandController.class).getModels()).withRel("ver_todos_models"));
+        addedModelDTO.add(linkTo(methodOn(StandController.class).updateModel(addedModelDTO.getModelIDDTO(), modelDTO)).withRel("update"));
+        return new ResponseEntity<>(addedModelDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value= "/model/update/{id}", consumes = "application/json")
+    public ResponseEntity<ModelDTO> updateModel(@PathVariable("id") long id, @RequestBody ModelDTO modelDTO) {
+
+        ModelDTO updatedModelDTO =myStorage.updateModel(modelDTO);
+
+        if ( updatedModelDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        updatedModelDTO.add(linkTo(methodOn(StandController.class).getModel(id)).withSelfRel());
+        updatedModelDTO.add(linkTo(methodOn(StandController.class).getModels()).withRel("ver_todos_models"));
+
+        return new ResponseEntity<>( updatedModelDTO, HttpStatus.OK);
+    }
+
+    @DeleteMapping(value="/model/delete/{id}")
+    public ResponseEntity<ModelDTO> deleteModel(@PathVariable("id") long id){
+
+        ModelDTO deletedModelDTO = myStorage.deleteModel(id);
+
+        if(deletedModelDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
+
 }

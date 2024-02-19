@@ -29,6 +29,8 @@ public class Vehicle {
     @ManyToOne
     Model model;
 
+    //ToDo: id comprador e id transação
+
     public Vehicle(long vehicleID, String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
         this.vehicleID = vehicleID;
         this.vehicleName = vehicleName;

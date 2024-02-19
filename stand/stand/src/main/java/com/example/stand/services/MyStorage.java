@@ -1,7 +1,11 @@
 package com.example.stand.services;
 
+import com.example.stand.dto.BrandDTO;
 import com.example.stand.dto.ClientDTO;
+import com.example.stand.dto.ModelDTO;
 import com.example.stand.dto.VehicleDTO;
+import com.example.stand.models.Brand;
+import com.example.stand.models.Client;
 
 import java.util.Collection;
 
@@ -15,7 +19,15 @@ public interface MyStorage {
 
     public VehicleDTO updateVehicle(VehicleDTO vehicle);
 
-//    public VehicleDTO buyVehicle(VehicleDTO vehicle);
+    public VehicleDTO deleteVehicle(long id);
+
+    public VehicleDTO buyVehicle(VehicleDTO vehicleDTO, ClientDTO clientDTO);
+    public VehicleDTO updateAsSold(VehicleDTO vehicleDTO);
+    public Collection<VehicleDTO> getVehiclesStock();
+    public Collection<VehicleDTO> getVehiclesSold();
+    public Collection<VehicleDTO> getVehiclesByClient(Client clientId);
+
+    ///////////////////////////
 
     public ClientDTO getClient(long id);
 
@@ -24,5 +36,34 @@ public interface MyStorage {
     public ClientDTO addClient(ClientDTO client);
 
     public ClientDTO updateClient(ClientDTO client);
+
+    public ClientDTO deleteClient(long id);
+
+
+    //////////////
+
+    public BrandDTO getBrand(long id);
+
+    public Collection<BrandDTO> getAllBrands();
+
+    public BrandDTO addBrand(BrandDTO brand);
+
+    public BrandDTO updateBrand(BrandDTO brand);
+
+    public BrandDTO deleteBrand(long id);
+
+    ///////////////////
+
+    public ModelDTO getModel(long id);
+
+    public Collection<ModelDTO> getAllModels();
+
+    public ModelDTO addModel(ModelDTO model);
+
+    public ModelDTO updateModel(ModelDTO model);
+
+    public ModelDTO deleteModel(long id);
+
+
 
 }

@@ -1,6 +1,8 @@
 package com.example.stand.dto;
 
-public class StandDTO {
+import org.springframework.hateoas.RepresentationModel;
+
+public class StandDTO extends RepresentationModel<StandDTO> {
     long standIdDTO;
     String standNameDTO;
     String standAddressDTO;
