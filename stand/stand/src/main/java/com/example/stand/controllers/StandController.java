@@ -4,6 +4,7 @@ import com.example.stand.dto.BrandDTO;
 import com.example.stand.dto.ClientDTO;
 import com.example.stand.dto.ModelDTO;
 import com.example.stand.dto.VehicleDTO;
+import com.example.stand.enums.Status;
 import com.example.stand.models.Brand;
 import com.example.stand.models.Client;
 import com.example.stand.models.Vehicle;
@@ -98,12 +99,38 @@ public class StandController {
         }
         return new ResponseEntity<>(HttpStatus.OK);
     }
-    
 
-    @PutMapping(value="/vehicle/update/status-sold/{id}", consumes = "production/json")
-    public ResponseEntity<VehicleDTO> updateStatusToSold(@PathVariable("id") long id, @RequestBody VehicleDTO vehicleDTO){
 
-        VehicleDTO updatedStatus = myStorage.updateAsSold(vehicleDTO);
+    @PostMapping(value= "/buy-vehicle/{vahicleId}", consumes= "application/json", produces= "application/json")
+    public ResponseEntity<VehicleDTO> buyVehicle(@PathVariable("vehicleId") long vehicleId, @RequestParam long clientId, @RequestParam long transactionId) {
+
+        VehicleDTO updatedVehicleDTO = myStorage.buyVehicle(vehicleId, clientId, transactionId);
+
+        if(updatedVehicleDTO == null){
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+
+        updatedVehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(updatedVehicleDTO.getVehicleIdDTO())).withSelfRel());
+        updatedVehicleDTO.add(linkTo(methodOn(StandController.class).getVehicles()).withRel("ver_todos_veiculos"));
+        updatedVehicleDTO.add(linkTo(methodOn(StandController.class).updateVehicle(updatedVehicleDTO.getVehicleIdDTO(), updatedVehicleDTO)).withRel("update"));
+        return new ResponseEntity<>(updatedVehicleDTO, HttpStatus.CREATED);
+    }
+
+    @PutMapping(value = "/vehicle/{vehicleId}/status/")
+    public ResponseEntity<String> updatedVehicleStatus(@PathVariable("vehicleId") long vehicleId, @RequestParam("newStatus") Status newStatus){
+        int rowsAffected = myStorage.updateVehicleStatus(vehicleId, newStatus);
+
+        if(rowsAffected>0){
+            return ResponseEntity.ok("Vehicle status updated successfully");
+        }else{
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Vehicle not found or status not updated");
+        }
+    }
+
+    @PutMapping(value="/vehicle/update/status-sold/{id}")
+    public ResponseEntity<VehicleDTO> updateStatusToSold(@PathVariable("id") long id){
+
+        VehicleDTO updatedStatus = myStorage.updateAsSold(id);
 
         if(updatedStatus == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -114,7 +141,7 @@ public class StandController {
         return new ResponseEntity<>(updatedStatus, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/vehicle/status-stock", produces = "application/json")
+    @GetMapping(value = "/vehicles/status-stock", produces = "application/json")
     public ResponseEntity<CollectionModel<VehicleDTO>> getVehiclesStock(){
 
         Collection<VehicleDTO> listVehiclesStockDTO = myStorage.getVehiclesStock();
@@ -130,7 +157,7 @@ public class StandController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping(value = "/vehicle/status-sold", produces = "application/json")
+    @GetMapping(value = "/vehicles/status-sold", produces = "application/json")
     public ResponseEntity<CollectionModel<VehicleDTO>> getVehiclesSold(){
 
         Collection<VehicleDTO> listVehiclesSoldDTO = myStorage.getVehiclesSold();
@@ -142,6 +169,22 @@ public class StandController {
         }
         Link link = linkTo(methodOn(StandController.class).getVehicles()).withSelfRel();
         CollectionModel<VehicleDTO> response = CollectionModel.of(listVehiclesSoldDTO, link);
+
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping(value= "/vehicles/client/{id}", produces = "application/json")
+    public ResponseEntity<CollectionModel<VehicleDTO>> getVehiclesByClientId(@PathVariable("id") long id){
+
+        Collection<VehicleDTO> listVehiclesByClientID = myStorage.getVehiclesByClient(id);
+        if(listVehiclesByClientID.isEmpty()){
+            return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+        }
+        for(VehicleDTO vehicleDTO : listVehiclesByClientID ){
+            vehicleDTO.add(linkTo(methodOn(StandController.class).getVehicle(vehicleDTO.getVehicleIdDTO())).withSelfRel());
+        }
+        Link link = linkTo(methodOn(StandController.class).getVehicles()).withSelfRel();
+        CollectionModel<VehicleDTO> response = CollectionModel.of(listVehiclesByClientID, link);
 
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

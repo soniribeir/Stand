@@ -25,6 +25,7 @@ INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Num
 INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (4, 'Porsche Panamera', 'AA-10-AA', 4, 4, 3, 3, 'Cinzento', 0, 2, 4, 4);
 INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (5, 'Ferrari Roma', 'AA-71-AA', 2, 2, 3, 0, 'Vermelho', 4, 5, 5, 3);
 INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (6, 'Toyota Yaris', 'AA-22-AA', 5, 4, 2, 3, 'Azul', 2, 4, 6, 2);
+INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (7, 'Toyota Yaris', 'BB-22-BB', 5, 4, 2, 3, 'Azul', 2, 4, 1, 2);
 
 
 

@@ -4,6 +4,7 @@ import com.example.stand.enums.Fuel;
 import com.example.stand.enums.Status;
 import com.example.stand.enums.Traction;
 import com.example.stand.enums.Type;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 
 @Entity
@@ -29,6 +30,9 @@ public class Vehicle {
     @ManyToOne
     Model model;
 
+    Long buyerId;
+
+    Long transactionId;
     //ToDo: id comprador e id transação
 
     public Vehicle(long vehicleID, String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
@@ -95,6 +99,14 @@ public class Vehicle {
         return model;
     }
 
+    public long getBuyerId() {
+        return buyerId;
+    }
+
+    public long getTransactionId() {
+        return transactionId;
+    }
+
     public void setVehicleName(String vehicleName) {
         this.vehicleName = vehicleName;
     }
@@ -136,6 +148,14 @@ public class Vehicle {
 
     public void setModel(Model model) {
         this.model = model;
+    }
+
+    public void setBuyerId(long buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public void setTransactionId(long transactionId) {
+        this.transactionId = transactionId;
     }
 }
 

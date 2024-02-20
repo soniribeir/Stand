@@ -10,6 +10,7 @@ import com.example.stand.models.Client;
 import com.example.stand.models.Model;
 import com.example.stand.models.Vehicle;
 import jakarta.transaction.Transactional;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
 import org.springframework.stereotype.Service;
 
@@ -22,10 +23,17 @@ import java.util.stream.Collectors;
 @Service
 public class MyStorageImpl implements MyStorage {
 
-    private final VehicleRepository vehicleStorage;
-    private final ClientRepository clientStorage;
-    private final BrandRepository brandStorage;
-    private final ModelRepository modelStorage;
+    @Autowired
+    VehicleRepository vehicleStorage;
+
+    @Autowired
+    ClientRepository clientStorage;
+
+    @Autowired
+    BrandRepository brandStorage;
+
+    @Autowired
+    ModelRepository modelStorage;
 
 
     public MyStorageImpl(VehicleRepository vehicleStorage, ClientRepository clientStorage, BrandRepository brandStorage, ModelRepository modelStorage) {
@@ -131,25 +139,35 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public VehicleDTO buyVehicle(VehicleDTO vehicleDTO, ClientDTO clientDTO) {
+    public VehicleDTO buyVehicle(long vehicleId, long clientId, long transactionId) {
 
-        VehicleDTO updatedVehicleDTO = updateAsSold(vehicleDTO);
+        VehicleDTO updatedVehicleDTO = updateAsSold(vehicleId);
 
-        if(updatedVehicleDTO != null && clientDTO != null){
-            Optional<Client> optionalClient = clientStorage.findById(clientDTO.getClientIDDTO());
+        if(updatedVehicleDTO != null ){
+            Optional<Client> optionalClient = clientStorage.findById(clientId);
 
             if(!optionalClient.isPresent()){
                 return null;
             }
+            Client client = optionalClient.get();
+
             updatedVehicleDTO.setClient(client);
+            updatedVehicleDTO.setTransactionId(transactionId);
+        }else{
+            return null;
         }
         return updatedVehicleDTO;
     }
 
     @Override
-    public VehicleDTO updateAsSold(VehicleDTO vehicleDTO) {
+    public int updateVehicleStatus(long vehicleId, Status newStatus) {
+        return vehicleStorage.updateVehicleStatus(vehicleId, newStatus);
+    }
 
-        Optional<Vehicle> optionalVehicle = vehicleStorage.findById(vehicleDTO.getVehicleIdDTO());
+    @Override
+    public VehicleDTO updateAsSold(long id) {
+
+        Optional<Vehicle> optionalVehicle = vehicleStorage.findById(id);
 
         if(!optionalVehicle.isPresent()){
             return null;
@@ -165,25 +183,24 @@ public class MyStorageImpl implements MyStorage {
 
     @Override
     public Collection<VehicleDTO> getVehiclesStock() {
-        return vehicleStorage.findAll().stream()
-                .filter(vehicle -> vehicle.getVehicleStatus() == Status.IN_STOCK)
+        Collection<Vehicle> stockVehicles = vehicleStorage.findVehiclesByStatus(Status.STOCK);
+        return stockVehicles.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     public Collection<VehicleDTO> getVehiclesSold() {
-        return vehicleStorage.findAll().stream()
-                .filter(vehicle -> vehicle.getVehicleStatus() == Status.SOLD)
+        Collection<Vehicle> soldVehicles = vehicleStorage.findVehiclesByStatus(Status.SOLD);
+        return soldVehicles.stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
     @Override
     @Transactional
-    public Collection<VehicleDTO> getVehiclesByClient(Client clientId) {
-        return vehicleStorage.findAll().stream()
-                .filter(vehicle -> vehicle.getClient().equals(clientId))
+    public Collection<VehicleDTO> getVehiclesByClient(long clientId) {
+        return vehicleStorage.findByClientId(clientId).stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }

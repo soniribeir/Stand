@@ -29,6 +29,10 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
     Client client;
     Model model;
 
+    long buyerId;
+
+    long transactionId;
+
     public VehicleDTO(long vehicleIdDTO, String vehicleNameDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO, Client client, Model model) {
         this.vehicleIdDTO = vehicleIdDTO;
         this.vehicleNameDTO = vehicleNameDTO;
@@ -92,6 +96,14 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
         return model;
     }
 
+    public long getBuyerId() {
+        return buyerId;
+    }
+
+    public long getTransactionId() {
+        return transactionId;
+    }
+
     public void setVehicleNameDTO(String vehicleNameDTO) {
         this.vehicleNameDTO = vehicleNameDTO;
     }
@@ -133,5 +145,13 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
 
     public void setModel(Model model) {
         this.model = model;
+    }
+
+    public void setBuyerId(long buyerId) {
+        this.buyerId = buyerId;
+    }
+
+    public void setTransactionId(long transactionId) {
+        this.transactionId = transactionId;
     }
 }

@@ -4,6 +4,7 @@ import com.example.stand.dto.BrandDTO;
 import com.example.stand.dto.ClientDTO;
 import com.example.stand.dto.ModelDTO;
 import com.example.stand.dto.VehicleDTO;
+import com.example.stand.enums.Status;
 import com.example.stand.models.Brand;
 import com.example.stand.models.Client;
 
@@ -21,11 +22,12 @@ public interface MyStorage {
 
     public VehicleDTO deleteVehicle(long id);
 
-    public VehicleDTO buyVehicle(VehicleDTO vehicleDTO, ClientDTO clientDTO);
-    public VehicleDTO updateAsSold(VehicleDTO vehicleDTO);
+    public VehicleDTO buyVehicle(long vehicleId, long clientId, long transactionId);
+    public int updateVehicleStatus(long vehicleId, Status newStatus);
+    public VehicleDTO updateAsSold(long vehicleId);
     public Collection<VehicleDTO> getVehiclesStock();
     public Collection<VehicleDTO> getVehiclesSold();
-    public Collection<VehicleDTO> getVehiclesByClient(Client clientId);
+    public Collection<VehicleDTO> getVehiclesByClient(long clientId);
 
     ///////////////////////////
 
