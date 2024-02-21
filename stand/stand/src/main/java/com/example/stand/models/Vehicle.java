@@ -31,7 +31,6 @@ public class Vehicle {
     Model model;
 
     Long buyerId;
-
     Long transactionId;
     //ToDo: id comprador e id transação
 

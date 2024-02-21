@@ -9,15 +9,17 @@ import com.example.stand.models.Brand;
 import com.example.stand.models.Client;
 import com.example.stand.models.Model;
 import com.example.stand.models.Vehicle;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.Banner;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -47,7 +49,7 @@ public class MyStorageImpl implements MyStorage {
     public VehicleDTO getVehicle(long id) {
         Vehicle vehicle = vehicleStorage.findById(id).orElse(null);
         if (vehicle == null) {
-            return null;
+            throw new EntityNotFoundException("Vehicle with id" + id + "was not found!");
         }
         return convertToDTO(vehicle);
     }
@@ -70,13 +72,12 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public Collection<VehicleDTO> getAllVehicles() {
-        return vehicleStorage.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<VehicleDTO> getAllVehicles(int page, int size, String sort) {
+        return vehicleStorage.findAll(PageRequest.of(page, size, Sort.by(sort))).map(this::convertToDTO);
     }
 
     @Override
+    @Transactional
     public VehicleDTO addVehicle(VehicleDTO vehicleDTO) {
         Vehicle vehicle = new Vehicle();
 
@@ -98,6 +99,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public VehicleDTO updateVehicle(VehicleDTO vehicleDTO) {
 
         if(!vehicleStorage.existsById(vehicleDTO.getVehicleIdDTO())){
@@ -123,6 +125,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public VehicleDTO deleteVehicle(long id) {
 
         Vehicle vehicle = vehicleStorage.findById(id).orElse(null);
@@ -131,14 +134,15 @@ public class MyStorageImpl implements MyStorage {
 
             vehicleStorage.deleteById(id);
 
-
             return convertToDTO(vehicle);
+
         } else {
-            return null;
+            throw new EntityNotFoundException("Vehicle with id" + id + "not found!");
         }
     }
 
     @Override
+    @Transactional
     public VehicleDTO buyVehicle(long vehicleId, long clientId, long transactionId) {
 
         VehicleDTO updatedVehicleDTO = updateAsSold(vehicleId);
@@ -160,11 +164,21 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public int updateVehicleStatus(long vehicleId, Status newStatus) {
-        return vehicleStorage.updateVehicleStatus(vehicleId, newStatus);
+        Vehicle vehicle = vehicleStorage.findVehicleStatus(vehicleId);
+
+        if(vehicle != null){
+            vehicle.setVehicleStatus(newStatus);
+            vehicleStorage.save(vehicle);
+            return 1;
+        }else{
+            return 0;
+        }
     }
 
     @Override
+    @Transactional
     public VehicleDTO updateAsSold(long id) {
 
         Optional<Vehicle> optionalVehicle = vehicleStorage.findById(id);
@@ -182,27 +196,23 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public Collection<VehicleDTO> getVehiclesStock() {
-        Collection<Vehicle> stockVehicles = vehicleStorage.findVehiclesByStatus(Status.STOCK);
-        return stockVehicles.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<VehicleDTO> getVehiclesStock(int page, int size, String sort) {
+        Page<Vehicle> stockVehicles = vehicleStorage.findVehiclesByStatus(Status.STOCK, Pageable.unpaged());
+        return stockVehicles.map(this::convertToDTO);
     }
 
+
     @Override
-    public Collection<VehicleDTO> getVehiclesSold() {
-        Collection<Vehicle> soldVehicles = vehicleStorage.findVehiclesByStatus(Status.SOLD);
-        return soldVehicles.stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<VehicleDTO> getVehiclesSold(int page, int size, String sort) {
+        Page<Vehicle> soldVehicles = vehicleStorage.findVehiclesByStatus(Status.SOLD, Pageable.unpaged());
+        return soldVehicles.map(this::convertToDTO);
     }
 
     @Override
     @Transactional
-    public Collection<VehicleDTO> getVehiclesByClient(long clientId) {
-        return vehicleStorage.findByClientId(clientId).stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<VehicleDTO> getVehiclesByClient(long clientId, int page, int size, String sort) {
+        Page<Vehicle> vehiclesByClientId = vehicleStorage.findByClientId(clientId, Pageable.unpaged());
+        return vehiclesByClientId.map(this::convertToDTO);
     }
 
 
@@ -232,13 +242,13 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public Collection<ClientDTO> getAllClients() {
-        return clientStorage.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<ClientDTO> getAllClients(int page, int size, String sort) {
+        return clientStorage.findAll(PageRequest.of(page, size, Sort.by(sort)))
+                .map(this::convertToDTO);
     }
 
     @Override
+    @Transactional
     public ClientDTO addClient(ClientDTO clientDTO) {
 
         Client client = new Client();
@@ -257,6 +267,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public ClientDTO updateClient(ClientDTO clientDTO) {
 
         if(!clientStorage.existsById(clientDTO.getClientIDDTO())){
@@ -278,6 +289,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public ClientDTO deleteClient(long id) {
 
         Client client = clientStorage.findById(id).orElse(null);
@@ -314,13 +326,13 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public Collection<BrandDTO> getAllBrands() {
-        return brandStorage.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    public Page<BrandDTO> getAllBrands(int page, int size) {
+        return brandStorage.findAll(PageRequest.of(page,size))
+                .map(this::convertToDTO);
     }
 
     @Override
+    @Transactional
     public BrandDTO addBrand(BrandDTO brandDTO) {
 
         Brand brand = new Brand();
@@ -334,6 +346,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public BrandDTO updateBrand(BrandDTO brandDTO) {
 
         if(!brandStorage.existsById(brandDTO.getBrandIDDTO())){
@@ -349,6 +362,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public BrandDTO deleteBrand(long id) {
 
         Brand brand = brandStorage.findById(id).orElse(null);
@@ -386,13 +400,14 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
-    public Collection<ModelDTO> getAllModels() {
-        return modelStorage.findAll().stream()
-                .map(this::convertToDTO)
-                .collect(Collectors.toList());
+    @Transactional
+    public Page<ModelDTO> getAllModels(int page, int size) {
+        return modelStorage.findAll(PageRequest.of(page,size))
+                .map(this::convertToDTO);
     }
 
     @Override
+    @Transactional
     public ModelDTO addModel(ModelDTO modelDTO) {
 
         Model model = new Model();
@@ -406,6 +421,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public ModelDTO updateModel(ModelDTO modelDTO) {
 
         if(!modelStorage.existsById(modelDTO.getModelIDDTO())){
@@ -421,6 +437,7 @@ public class MyStorageImpl implements MyStorage {
     }
 
     @Override
+    @Transactional
     public ModelDTO deleteModel(long id) {
 
         Model model = modelStorage.findById(id).orElse(null);

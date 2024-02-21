@@ -7,6 +7,7 @@ import com.example.stand.dto.VehicleDTO;
 import com.example.stand.enums.Status;
 import com.example.stand.models.Brand;
 import com.example.stand.models.Client;
+import org.springframework.data.domain.Page;
 
 import java.util.Collection;
 
@@ -14,7 +15,7 @@ public interface MyStorage {
 
     public VehicleDTO getVehicle(long id);
 
-    public Collection<VehicleDTO> getAllVehicles();
+    public Page<VehicleDTO> getAllVehicles(int page, int size, String sort);
 
     public VehicleDTO addVehicle(VehicleDTO vehicle);
 
@@ -25,15 +26,15 @@ public interface MyStorage {
     public VehicleDTO buyVehicle(long vehicleId, long clientId, long transactionId);
     public int updateVehicleStatus(long vehicleId, Status newStatus);
     public VehicleDTO updateAsSold(long vehicleId);
-    public Collection<VehicleDTO> getVehiclesStock();
-    public Collection<VehicleDTO> getVehiclesSold();
-    public Collection<VehicleDTO> getVehiclesByClient(long clientId);
+    public Page<VehicleDTO> getVehiclesStock(int page, int size, String sort);
+    public Page<VehicleDTO> getVehiclesSold(int page, int size, String sort);
+    public Page<VehicleDTO> getVehiclesByClient(long clientId, int page, int size, String sort);
 
     ///////////////////////////
 
     public ClientDTO getClient(long id);
 
-    public Collection<ClientDTO> getAllClients();
+    public Page<ClientDTO> getAllClients(int page, int size, String sort);
 
     public ClientDTO addClient(ClientDTO client);
 
@@ -46,7 +47,7 @@ public interface MyStorage {
 
     public BrandDTO getBrand(long id);
 
-    public Collection<BrandDTO> getAllBrands();
+    public Page<BrandDTO> getAllBrands(int page, int size);
 
     public BrandDTO addBrand(BrandDTO brand);
 
@@ -58,7 +59,7 @@ public interface MyStorage {
 
     public ModelDTO getModel(long id);
 
-    public Collection<ModelDTO> getAllModels();
+    public Page<ModelDTO> getAllModels(int page, int size);
 
     public ModelDTO addModel(ModelDTO model);
 
