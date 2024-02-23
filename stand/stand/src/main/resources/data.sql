@@ -37,6 +37,7 @@ INSERT INTO Model (modelID, model_Name,brand_Name_brandID) VALUES (5, 'X2',5);
 INSERT INTO Model (modelID, model_Name,brand_Name_brandID) VALUES (6, 'X3',6);
 INSERT INTO Model (modelID, model_Name,brand_Name_brandID) VALUES (7, 'X4',7);
 
+
 INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (1, 'Toyota Avensis', 'AA-01-AA', 5, 4, 1, 1, 'Preto', 0, 3, 1, 1);
 INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (2, 'BMW X1', 'BB-01-BB', 5, 4, 2, 0, 'Branco', 1, 0, 2, 4);
 INSERT INTO Vehicle (vehicleID, vehicle_Name, vehicle_License_Plate, vehicle_Number_Seats, vehicle_Number_Doors, vehicle_Traction, vehicle_Fuel, vehicle_Color, vehicle_Type, vehicle_Status, client_clientid, model_modelid) VALUES (3, 'Ferrari Portofino', 'AB-01-AB', 2, 2, 3, 0, 'Vermelho', 4, 1, 3, 2);

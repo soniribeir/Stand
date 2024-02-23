@@ -119,10 +119,10 @@ public class StandController {
     }
 
 
-    @PostMapping(value= "/buy-vehicle/{vahicleId}", consumes= "application/json", produces= "application/json")
-    public ResponseEntity<VehicleDTO> buyVehicle(@PathVariable("vehicleId") long vehicleId, @RequestParam long clientId, @RequestParam long transactionId) {
+    @PostMapping(value= "/buy-vehicle/{vehicleId}", consumes= "application/json", produces= "application/json")
+    public ResponseEntity<VehicleDTO> buyVehicle(@PathVariable("vehicleId") long vehicleId, @RequestParam long buyerId, @RequestParam long transactionId, @RequestParam double sellingPrice) {
 
-        VehicleDTO updatedVehicleDTO = myStorage.buyVehicle(vehicleId, clientId, transactionId);
+        VehicleDTO updatedVehicleDTO = myStorage.buyVehicle(vehicleId, buyerId, transactionId, sellingPrice);
 
         if(updatedVehicleDTO == null){
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);

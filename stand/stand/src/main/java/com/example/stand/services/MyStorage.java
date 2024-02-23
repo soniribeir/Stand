@@ -23,7 +23,7 @@ public interface MyStorage {
 
     public VehicleDTO deleteVehicle(long id);
 
-    public VehicleDTO buyVehicle(long vehicleId, long clientId, long transactionId);
+    public VehicleDTO buyVehicle(long vehicleId, long buyerId, long transactionId, double sellingPrice);
     public int updateVehicleStatus(long vehicleId, Status newStatus);
     public VehicleDTO updateAsSold(long vehicleId);
     public Page<VehicleDTO> getVehiclesStock(int page, int size, String sort);

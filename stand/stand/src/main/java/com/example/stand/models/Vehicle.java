@@ -11,7 +11,7 @@ import jakarta.persistence.*;
 public class Vehicle {
     @Id
     @GeneratedValue
-    long vehicleID;
+    Long vehicleID;
     String vehicleName;
     String vehicleLicensePlate;
     Integer vehicleNumberSeats;
@@ -32,9 +32,12 @@ public class Vehicle {
 
     Long buyerId;
     Long transactionId;
-    //ToDo: id comprador e id transação
 
-    public Vehicle(long vehicleID, String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model) {
+    double purchasePrice;
+
+    double sellingPrice;
+
+    public Vehicle(Long vehicleID, String vehicleName, String vehicleLicensePlate, Integer vehicleNumberSeats, Integer vehicleNumberDoors, Traction vehicleTraction, Fuel vehicleFuel, String vehicleColor, Type vehicleType, Status vehicleStatus, Client client, Model model, double purchasePrice, double sellingPrice) {
         this.vehicleID = vehicleID;
         this.vehicleName = vehicleName;
         this.vehicleLicensePlate = vehicleLicensePlate;
@@ -47,7 +50,10 @@ public class Vehicle {
         this.vehicleStatus = vehicleStatus;
         this.client = client;
         this.model = model;
+        this.purchasePrice = purchasePrice;
+        this.sellingPrice = sellingPrice;
     }
+
     public Vehicle() {}
 
     public long getVehicleID() {
@@ -106,6 +112,14 @@ public class Vehicle {
         return transactionId;
     }
 
+    public double getPurchasePrice() {
+        return purchasePrice;
+    }
+
+    public double getSellingPrice() {
+        return sellingPrice;
+    }
+
     public void setVehicleName(String vehicleName) {
         this.vehicleName = vehicleName;
     }
@@ -155,6 +169,14 @@ public class Vehicle {
 
     public void setTransactionId(long transactionId) {
         this.transactionId = transactionId;
+    }
+
+    public void setPurchasePrice(double purchasePrice) {
+        this.purchasePrice = purchasePrice;
+    }
+
+    public void setSellingPrice(double sellingPrice) {
+        this.sellingPrice = sellingPrice;
     }
 }
 

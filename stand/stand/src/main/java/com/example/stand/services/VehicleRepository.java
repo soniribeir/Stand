@@ -13,9 +13,6 @@ import java.util.Collection;
 
 public interface VehicleRepository extends JpaRepository<Vehicle, Long> {
 
-//    @Query("SELECT v FROM Vehicle v WHERE v.BusinessStatus = :businessStatus")
-//    List<Vehicle> findByStatus(BusinessStatus businessStatus);
-
     @Query("SELECT v FROM Vehicle v WHERE v.client.clientID = :clientId")
     Page<Vehicle> findByClientId(long clientId, Pageable page);
 

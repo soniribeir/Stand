@@ -29,11 +29,15 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
     Client client;
     Model model;
 
-    long buyerId;
+    Long buyerId;
 
-    long transactionId;
+    Long transactionId;
 
-    public VehicleDTO(long vehicleIdDTO, String vehicleNameDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO, Client client, Model model) {
+    double purchasePriceDTO;
+
+    double sellingPriceDTO;
+
+    public VehicleDTO(long vehicleIdDTO, String vehicleNameDTO, String vehicleLicensePlateDTO, Integer vehicleNumberSeatsDTO, Integer vehicleNumberDoorsDTO, Traction vehicleTractionDTO, Fuel vehicleFuelDTO, String vehicleColorDTO, Type vehicleTypeDTO, Status vehicleStatusDTO, Client client, Model model, double purchasePriceDTO, double sellingPriceDTO) {
         this.vehicleIdDTO = vehicleIdDTO;
         this.vehicleNameDTO = vehicleNameDTO;
         this.vehicleLicensePlateDTO = vehicleLicensePlateDTO;
@@ -46,6 +50,8 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
         this.vehicleStatusDTO = vehicleStatusDTO;
         this.client = client;
         this.model = model;
+        this.purchasePriceDTO = purchasePriceDTO;
+        this.sellingPriceDTO = sellingPriceDTO;
     }
 
     public long getVehicleIdDTO() {
@@ -96,12 +102,20 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
         return model;
     }
 
-    public long getBuyerId() {
+    public Long getBuyerId() {
         return buyerId;
     }
 
-    public long getTransactionId() {
+    public Long getTransactionId() {
         return transactionId;
+    }
+
+    public double getPurchasePriceDTO() {
+        return purchasePriceDTO;
+    }
+
+    public double getSellingPriceDTO() {
+        return sellingPriceDTO;
     }
 
     public void setVehicleNameDTO(String vehicleNameDTO) {
@@ -147,11 +161,19 @@ public class VehicleDTO extends RepresentationModel<VehicleDTO> {
         this.model = model;
     }
 
-    public void setBuyerId(long buyerId) {
+    public void setBuyerId(Long buyerId) {
         this.buyerId = buyerId;
     }
 
-    public void setTransactionId(long transactionId) {
+    public void setTransactionId(Long transactionId) {
         this.transactionId = transactionId;
+    }
+
+    public void setPurchasePriceDTO(double purchasePriceDTO) {
+        this.purchasePriceDTO = purchasePriceDTO;
+    }
+
+    public void setSellingPriceDTO(double sellingPriceDTO) {
+        this.sellingPriceDTO = sellingPriceDTO;
     }
 }

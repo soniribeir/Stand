@@ -67,7 +67,27 @@ public class MyStorageImpl implements MyStorage {
                 vehicle.getVehicleType(),
                 vehicle.getVehicleStatus(),
                 vehicle.getClient(),
-                vehicle.getModel()
+                vehicle.getModel(),
+                vehicle.getPurchasePrice(),
+                vehicle.getSellingPrice()
+        );
+    }
+    private Vehicle convertToEntity(VehicleDTO vehicleDTO){
+        return new Vehicle(
+                vehicleDTO.getVehicleIdDTO(),
+                vehicleDTO.getVehicleNameDTO(),
+                vehicleDTO.getVehicleLicensePlateDTO(),
+                vehicleDTO.getVehicleNumberSeatsDTO(),
+                vehicleDTO.getVehicleNumberDoorsDTO(),
+                vehicleDTO.getVehicleTractionDTO(),
+                vehicleDTO.getVehicleFuelDTO(),
+                vehicleDTO.getVehicleColorDTO(),
+                vehicleDTO.getVehicleTypeDTO(),
+                vehicleDTO.getVehicleStatusDTO(),
+                vehicleDTO.getClient(),
+                vehicleDTO.getModel(),
+                vehicleDTO.getPurchasePriceDTO(),
+                vehicleDTO.getSellingPriceDTO()
         );
     }
 
@@ -92,6 +112,12 @@ public class MyStorageImpl implements MyStorage {
         vehicle.setVehicleStatus(vehicleDTO.getVehicleStatusDTO());
         vehicle.setClient(vehicleDTO.getClient());
         vehicle.setModel(vehicleDTO.getModel());
+        vehicle.setPurchasePrice(vehicleDTO.getPurchasePriceDTO());
+        vehicle.setSellingPrice(vehicleDTO.getSellingPriceDTO());
+
+
+        //vehicle.setClient(clientStorage.findById(vehicleDTO.getClient().getClientID()).orElse(null));
+        //vehicle.setModel(modelStorage.findById(vehicleDTO.getModel().getModelID()).orElse(null));
 
         Vehicle savedVehicle = vehicleStorage.save(vehicle);
 
@@ -118,6 +144,8 @@ public class MyStorageImpl implements MyStorage {
         vehicle.setVehicleStatus(vehicleDTO.getVehicleStatusDTO());
         vehicle.setClient(vehicleDTO.getClient());
         vehicle.setModel(vehicleDTO.getModel());
+        vehicle.setPurchasePrice(vehicleDTO.getPurchasePriceDTO());
+        vehicle.setSellingPrice(vehicleDTO.getSellingPriceDTO());
 
         Vehicle updatedVehicle = vehicleStorage.save(vehicle);
 
@@ -143,24 +171,23 @@ public class MyStorageImpl implements MyStorage {
 
     @Override
     @Transactional
-    public VehicleDTO buyVehicle(long vehicleId, long clientId, long transactionId) {
+    public VehicleDTO buyVehicle(long vehicleId, long buyerId, long transactionId, double sellingPrice) {
 
         VehicleDTO updatedVehicleDTO = updateAsSold(vehicleId);
 
         if(updatedVehicleDTO != null ){
-            Optional<Client> optionalClient = clientStorage.findById(clientId);
 
-            if(!optionalClient.isPresent()){
-                return null;
-            }
-            Client client = optionalClient.get();
-
-            updatedVehicleDTO.setClient(client);
+            updatedVehicleDTO.setBuyerId(buyerId);
             updatedVehicleDTO.setTransactionId(transactionId);
+            updatedVehicleDTO.setSellingPriceDTO(sellingPrice);
+
+            Vehicle updatedVehicle = convertToEntity(updatedVehicleDTO);
+            Vehicle savedVehicle = vehicleStorage.save(updatedVehicle);
+
+            return convertToDTO(savedVehicle);
         }else{
             return null;
         }
-        return updatedVehicleDTO;
     }
 
     @Override

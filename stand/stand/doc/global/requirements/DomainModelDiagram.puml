@@ -8,8 +8,6 @@ title Stand Diagram
 class Vehicle {
 vehicleID [pk]
 vehicleName
-vehicleBrand
-vehicleModel
 vehicleLicensePlate
 vehicleNumberSeats
 vehicleNumberDoors
@@ -18,9 +16,10 @@ vehicleFuel
 vehicleColor
 vehicleStatus
 vehicleType
-brandId[fk]
-modelId[fk]
-standID[fk]
+clientId[fk]
+modelID[fk]
+buyerID
+transactionID
 }
 
 class Client {
@@ -58,7 +57,6 @@ modelName
 Stand "1 " --down "       *"Vehicle : has >
 Client "1" --down "         *"Vehicle : provides >
 Stand "1" --down "*"Client : has >
-Brand "1    " --down "*"Vehicle : has >
 Model "1    " --down "*"Vehicle : has >
 Brand "1" --down "       *"Model : has >
 
