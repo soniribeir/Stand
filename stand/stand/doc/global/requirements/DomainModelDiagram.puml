@@ -52,6 +52,22 @@ modelId [pk]
 modelName
 }
 
+class Buyer  {
+buyerId [pk]
+buyerName
+buyerAddress
+buyerPhoneNumber
+buyerNif
+buyerEmailAddress
+}
+
+class Transaction   {
+transactionID
+transactionDate
+sellingPrice
+buyerId [fk]
+}
+
 
 
 Stand "1 " --down "       *"Vehicle : has >
@@ -59,5 +75,9 @@ Client "1" --down "         *"Vehicle : provides >
 Stand "1" --down "*"Client : has >
 Model "1    " --down "*"Vehicle : has >
 Brand "1" --down "       *"Model : has >
+Buyer "1" --down "       *"Vehicle : buys >
+Buyer "1" --down "       1"Transaction : has >
+Transaction "1" --down "     1"Vehicle : has >
+
 
 @enduml
